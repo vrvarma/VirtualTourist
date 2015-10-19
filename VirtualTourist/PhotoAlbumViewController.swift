@@ -9,17 +9,7 @@
 import Foundation
 import CoreData
 import MapKit
-extension UICollectionView {
-    func reloadData(completion: ()->()) {
-        print("Reload Data")
-        UIView.animateWithDuration(0, animations: {
-            self.reloadData()
-            })
-            {
-                _ in completion()
-        }
-    }
-}
+
 class PhotoAlbumViewController: UIViewController,NSFetchedResultsControllerDelegate,UICollectionViewDelegate, UICollectionViewDataSource{
     
     @IBOutlet weak var mapView: MKMapView!
@@ -88,35 +78,35 @@ class PhotoAlbumViewController: UIViewController,NSFetchedResultsControllerDeleg
         
         newCollectionButton.enabled = false
         self.collectionActivityIndicator.startAnimating()
-        
-        if pin.isImageDeleted == false {
+       
+        if pin.prefetchedPhotos != nil {
+            
+            self.deleteAllPhotos()
+            populatePhotos(pin.prefetchedPhotos)
+            pin.prefetchedPhotos.removeAll()
+            pin.prefetchedPhotos = nil
+            
+            
+        } else if !pin.isFetchingImages && !pin.isImageDeleted  {
             
             if pin.photos.isEmpty {
                 
-                VTClient.sharedInstance().getFlickrImageList( pin.latitude,longtitude:pin!.longitude){ result, error in
-                    
-                    //print(error)
-                    if let _ = error  {
+                pin.isFetchingImages = true
+                VTClient.sharedInstance().getFlickrImageList( pin.latitude,longitude:pin!.longitude){ result, error in
+                    if let error = error  {
                         
+                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                            VTClient.alertDialog(self, errorTitle: "Error retrieving flickr pictures", action: "Ok",errorMsg: "\(error)")
+                        })
                         self.showDataItems(true)
                         
                     }
                     else {
-                        if let photoList = result as? [[String: AnyObject]] {
-                            
-                            for photoObj in photoList{
-                                //print(photoObj)
-                                let photo = Photo(dictionary: photoObj, context: self.sharedContext)
-                                photo.pin = self.pin
-                                
-                            }
-                        }
-                        CoreDataStackManager.sharedInstance().saveContext()
-                        self.showDataItems(false)
+                        self.populatePhotos(result as? [[String: AnyObject]])
                     }
                     
                 }
-                
+                pin.isFetchingImages = false
             }else{
                 showDataItems(false)
             }
@@ -125,7 +115,25 @@ class PhotoAlbumViewController: UIViewController,NSFetchedResultsControllerDeleg
             showDataItems(false)
         }
         
+    }
+    
+    private func populatePhotos(photos: [[String: AnyObject]]!)-> Void{
         
+        if let photoList = photos {
+            
+            if(photoList.isEmpty){
+                
+                self.showDataItems(true)
+            }else{for photoObj in photoList{
+                
+                let photo = Photo(dictionary: photoObj, context: self.sharedContext)
+                photo.pin = self.pin
+                
+                }
+                CoreDataStackManager.sharedInstance().saveContext()
+                self.showDataItems(false)
+            }
+        }
     }
     
     func showDataItems(flag:Bool){
@@ -284,8 +292,6 @@ class PhotoAlbumViewController: UIViewController,NSFetchedResultsControllerDeleg
     }
     
     func controllerDidChangeContent(controller: NSFetchedResultsController) {
-        
-        print("in controllerDidChangeContent. changes.count: \(insertedIndexPaths.count + deletedIndexPaths.count)")
         
         collectionView.performBatchUpdates ({() -> Void in
             

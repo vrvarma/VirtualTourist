@@ -19,6 +19,10 @@ class Pin: NSManagedObject,MKAnnotation {
     @NSManaged var imageDeleted:NSNumber?
     @NSManaged var photos: [Photo]
     
+    var isFetchingImages:Bool = false
+    
+    var prefetchedPhotos:[[String: AnyObject]]!
+    
     //coordinate field implemented to support drag & drop
     var coordinate: CLLocationCoordinate2D {
         get {

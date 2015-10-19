@@ -33,7 +33,7 @@ class CoreDataStackManager {
     
     lazy var applicationDocumentsDirectory: NSURL = {
         
-        print("Instantiating the applicationDocumentsDirectory property")
+        //print("Instantiating the applicationDocumentsDirectory property")
         
         let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
         return urls[urls.count-1]
@@ -49,12 +49,12 @@ class CoreDataStackManager {
     lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator? = {
         // Create the coordinator and store
         
-        print("Instantiating the persistentStoreCoordinator property")
+        //print("Instantiating the persistentStoreCoordinator property")
         
         var coordinator: NSPersistentStoreCoordinator? = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
         let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent(SQLITE_FILE_NAME)
         
-        print("sqlite path: \(url.path!)")
+        //print("sqlite path: \(url.path!)")
         
         var error: NSError? = nil
         
@@ -105,7 +105,7 @@ class CoreDataStackManager {
                     try context.save()
                 } catch let error1 as NSError {
                     error = error1
-                    print(error!.userInfo)
+                    //print(error!.userInfo)
                     NSLog("Unresolved error \(error), \(error!.userInfo)")
                     abort()
                 }

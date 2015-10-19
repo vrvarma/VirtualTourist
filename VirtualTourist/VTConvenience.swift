@@ -29,67 +29,74 @@ extension VTClient{
         })
     }
     
-    func getFlickrImageList(latitude:Double!,longtitude:Double!,completionHandler:(result:AnyObject!,errorString: String?) ->Void){
+    func getFlickrImageList(latitude:Double!,longitude:Double!,completionHandler:(result:AnyObject!,errorString: String?) ->Void){
         
-        getRandomPage(latitude,longtitude: longtitude){ randomPage, error in
-            
-            if(randomPage != nil){
-                //print("Random Page \(randomPage)")
+        if IJReachability.isConnectedToNetwork(){
+            getRandomPage(latitude,longtitude: longitude){ randomPage, error in
                 
-                let headers = [String: String]()
-                //Set the parameters
-                let parameters =
-                [Parameters.method: Methods.photoSearch,
-                    Parameters.apiKey:Constants.api_key,
+                if(randomPage != nil){
+                    //print("Random Page \(randomPage)")
                     
-                    Parameters.safeSearch:Constants.safe_search,
-                    Parameters.dataFormat:Constants.data_format,
-                    Parameters.extra :Constants.extra,
-                    Parameters.longitude: (longtitude),
-                    Parameters.latitude :(latitude),
-                    Parameters.jsonCallback :Constants.nojsoncallback,
-                    Parameters.perPage :Constants.max_pic_per_page,
-                    Parameters.page :randomPage]
-                
-                //Invoke the task
-                _ = self.taskForGETMethod( Constants.baseSecuredFlickrURL, parameters: parameters as! [String : AnyObject],headers:headers) { data, error in
-                    
-                    /* Send the desired value(s) to completion handler */
-                    if  error != nil {
+                    let headers = [String: String]()
+                    //Set the parameters
+                    let parameters =
+                    [Parameters.method: Methods.photoSearch,
+                        Parameters.apiKey:Constants.api_key,
                         
-                        completionHandler(result: nil, errorString: error!.localizedFailureReason!)
-                    }else{
-                        VTClient.parseJSONWithCompletionHandler(data as! NSData) { (JSONData, parseError) in
-                            //If we failed to parse the data return the reason why
-                            if parseError != nil{
-                                completionHandler(result: nil, errorString: parseError!.localizedDescription)
-                                //We seem to have gotten the info, so extract and save it
-                            }else{
-                                
-                                //print(JSONData)
-                                if let resultArray = JSONData["photos"] as? [String: AnyObject] {
+                        Parameters.safeSearch:Constants.safe_search,
+                        Parameters.dataFormat:Constants.data_format,
+                        Parameters.extra :Constants.extra,
+                        Parameters.longitude: (longitude),
+                        Parameters.latitude :(latitude),
+                        Parameters.jsonCallback :Constants.nojsoncallback,
+                        Parameters.perPage :Constants.max_pic_per_page,
+                        Parameters.page :randomPage]
+                    
+                    //Invoke the task
+                    _ = self.taskForGETMethod( Constants.baseSecuredFlickrURL, parameters: parameters as! [String : AnyObject],headers:headers) { data, error in
+                        
+                        /* Send the desired value(s) to completion handler */
+                        if  error != nil {
+                            
+                            completionHandler(result: nil, errorString: error!.localizedFailureReason!)
+                        }else{
+                            VTClient.parseJSONWithCompletionHandler(data as! NSData) { (JSONData, parseError) in
+                                //If we failed to parse the data return the reason why
+                                if parseError != nil{
+                                    completionHandler(result: nil, errorString: parseError!.localizedDescription)
+                                    //We seem to have gotten the info, so extract and save it
+                                }else{
                                     
-                                    if let photoList = resultArray["photo"] as? [[String: AnyObject]] {
-                                        //print(resultArray)
-                                        completionHandler(result: photoList, errorString: nil)
-                                    }
-                                    else {
-                                        completionHandler(result: nil, errorString: "Error")
+                                    //print(JSONData)
+                                    if let resultArray = JSONData["photos"] as? [String: AnyObject] {
+                                        
+                                        if let photoList = resultArray["photo"] as? [[String: AnyObject]] {
+                                            //print(resultArray)
+                                            completionHandler(result: photoList, errorString: nil)
+                                        }
+                                        else {
+                                            completionHandler(result: nil, errorString: "Error")
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                }else{
+                    completionHandler(result: nil, errorString: error)
                 }
-            }else{
-                completionHandler(result: nil, errorString: "Error")
+                
             }
+        }else{
             
+            completionHandler(result: nil, errorString: "Unable to connect to Internet!")
         }
     }
-    
+    //Method
+    //Gets the total number of pictures for that given location
+    //And calculates the number of pages (given the max photos per page)
+    //returns the random page
     func getRandomPage(latitude:Double!,longtitude:Double!,completionHandler:(result:Int!,errorString: String?) ->Void){
-        
         
         let headers = [String: String]()
         //Set the parameters
@@ -120,7 +127,7 @@ extension VTClient{
                         
                         
                         if let resultArray = JSONData["photos"] as? [String: AnyObject] {
-                            //print(resultArray)
+                            //print("random count \(resultArray)")
                             let total = Int((resultArray["total"] as? String)!)
                             //print(total)
                             
@@ -139,30 +146,22 @@ extension VTClient{
     }
     private func genRandomPage(total: Int) -> Int? {
         
-        //print("Total Photos\(total)")
-        if total > 0 {
+        let total = min(total, Constants.max_flickr_photos)
+        
+        if total <= Constants.max_pic_per_page{
             
-            let total = min(total, Constants.max_flickr_photos)
+            return 1
+        }else{
             
-            if total <= Constants.max_pic_per_page{
+            let noOfPages = total / Constants.max_pic_per_page
+            
+            if noOfPages > 1{
                 
-                return 1
+                return Int (arc4random_uniform(UInt32(noOfPages))) + 1
             }else{
                 
-                let noOfPages = total / Constants.max_pic_per_page
-                
-                if noOfPages > 1{
-                    
-                    return Int (arc4random_uniform(UInt32(noOfPages))) + 1
-                }else{
-                    
-                    return 1
-                }
+                return 1
             }
         }
-        else{
-            return nil
-        }
-        
     }
 }

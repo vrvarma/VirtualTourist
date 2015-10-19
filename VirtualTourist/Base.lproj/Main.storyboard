@@ -4,10 +4,10 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
     </dependencies>
     <scenes>
-        <!--Virtual Tourist-->
+        <!--Travel Locations Map-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController title="Virtual Tourist" id="BYZ-38-t0r" customClass="MapViewController" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Travel Locations Map" id="BYZ-38-t0r" customClass="MapViewController" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -62,7 +62,7 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
-                <pongPressGestureRecognizer allowableMovement="10" minimumPressDuration="1" id="xdq-F5-LXN">
+                <pongPressGestureRecognizer allowableMovement="10" minimumPressDuration="1.5" id="xdq-F5-LXN">
                     <connections>
                         <action selector="tapAction:" destination="BYZ-38-t0r" id="rdW-85-W8A"/>
                     </connections>
@@ -146,8 +146,11 @@
                                 </connections>
                             </collectionView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lqc-RW-A8n">
-                                <rect key="frame" x="0.0" y="570" width="600" height="30"/>
+                                <rect key="frame" x="0.0" y="559" width="600" height="41"/>
                                 <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="41" id="3Wm-Uk-CBv"/>
+                                </constraints>
                                 <state key="normal" title="New Collection"/>
                                 <connections>
                                     <action selector="newCollectionButtonPressed:" destination="jiy-Wl-Dz9" eventType="touchUpInside" id="eH7-sc-bhe"/>
@@ -158,16 +161,15 @@
                         <constraints>
                             <constraint firstItem="99E-0f-j0a" firstAttribute="centerY" secondItem="25r-Ub-RyW" secondAttribute="centerY" id="AnH-VW-Uhd"/>
                             <constraint firstItem="99E-0f-j0a" firstAttribute="centerX" secondItem="TYr-NK-Y9A" secondAttribute="centerX" id="B6P-7b-06F"/>
+                            <constraint firstItem="lqc-RW-A8n" firstAttribute="leading" secondItem="aE6-XI-Bpn" secondAttribute="leading" id="BlE-GM-YtN"/>
                             <constraint firstAttribute="trailing" secondItem="TYr-NK-Y9A" secondAttribute="trailing" id="Ngb-Lu-AYy"/>
-                            <constraint firstItem="lqc-RW-A8n" firstAttribute="leading" secondItem="aE6-XI-Bpn" secondAttribute="leading" id="XDw-zL-hQH"/>
+                            <constraint firstItem="lqc-RW-A8n" firstAttribute="trailing" secondItem="aE6-XI-Bpn" secondAttribute="trailing" id="ZmK-6T-qmp"/>
                             <constraint firstItem="aE6-XI-Bpn" firstAttribute="trailing" secondItem="TYr-NK-Y9A" secondAttribute="trailing" id="Zux-Kz-e2b"/>
                             <constraint firstItem="aE6-XI-Bpn" firstAttribute="bottom" secondItem="hyf-jm-LaM" secondAttribute="top" id="bn4-g6-ypG"/>
                             <constraint firstItem="TYr-NK-Y9A" firstAttribute="top" secondItem="SGW-0v-89B" secondAttribute="bottom" id="eAr-rV-FRI"/>
-                            <constraint firstItem="hyf-jm-LaM" firstAttribute="top" secondItem="lqc-RW-A8n" secondAttribute="bottom" id="f1y-WQ-MBe"/>
                             <constraint firstItem="aE6-XI-Bpn" firstAttribute="top" secondItem="TYr-NK-Y9A" secondAttribute="bottom" id="fjl-US-Hnd"/>
                             <constraint firstItem="TYr-NK-Y9A" firstAttribute="leading" secondItem="25r-Ub-RyW" secondAttribute="leading" id="qSM-h8-zwu"/>
-                            <constraint firstItem="lqc-RW-A8n" firstAttribute="centerX" secondItem="aE6-XI-Bpn" secondAttribute="centerX" id="tf4-WY-uxp"/>
-                            <constraint firstItem="lqc-RW-A8n" firstAttribute="trailing" secondItem="aE6-XI-Bpn" secondAttribute="trailing" id="wgg-cF-Ywy"/>
+                            <constraint firstItem="lqc-RW-A8n" firstAttribute="bottom" secondItem="hyf-jm-LaM" secondAttribute="top" id="t0k-iN-glK"/>
                             <constraint firstItem="aE6-XI-Bpn" firstAttribute="leading" secondItem="TYr-NK-Y9A" secondAttribute="leading" id="yua-dH-eaS"/>
                         </constraints>
                     </view>
