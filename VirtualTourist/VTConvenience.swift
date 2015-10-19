@@ -28,7 +28,7 @@ extension VTClient{
             viewController.presentViewController(alertController, animated: true, completion: nil)
         })
     }
-    
+    //Given the latitude and longitude  fetch the images from flickr
     func getFlickrImageList(latitude:Double!,longitude:Double!,completionHandler:(result:AnyObject!,errorString: String?) ->Void){
         
         if IJReachability.isConnectedToNetwork(){
@@ -144,6 +144,8 @@ extension VTClient{
             }
         }
     }
+    
+    //Generate the random page given the total number of images for a given location
     private func genRandomPage(total: Int) -> Int? {
         
         let total = min(total, Constants.max_flickr_photos)

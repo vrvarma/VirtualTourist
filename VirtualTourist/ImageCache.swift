@@ -50,7 +50,7 @@ class ImageCache {
         return
         
     }
-    
+    // store the image in the file path
     func storeImage(image: UIImage?, withIdentifier identifier: String) {
         let path = pathForIdentifier(identifier)
         // If the image is nil, remove images from the cache

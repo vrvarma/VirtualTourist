@@ -12,7 +12,7 @@ private let _documentsDirectoryURL: NSURL = NSFileManager.defaultManager().URLsF
 private let _fileURL: NSURL = _documentsDirectoryURL.URLByAppendingPathComponent("VirtualTourist-Context")
 
 
-//Using NSCoding to save the MapRegion, as I need only one instance of the MapRegion
+//Using NSCoding to save the MapRegion
 class MapRegion: NSObject, NSCoding {
     
     var currentRegion: MKCoordinateRegion

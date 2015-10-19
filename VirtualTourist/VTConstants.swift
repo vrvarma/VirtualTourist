@@ -21,7 +21,7 @@ extension VTClient{
         static let lat_max = 90.0
         static let lon_min = -180.0
         static let lon_max = 180.0
-        static let max_pic_per_page = 25
+        static let max_pic_per_page = 21
         static let max_flickr_photos = 4000
     }
     

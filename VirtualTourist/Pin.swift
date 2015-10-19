@@ -21,6 +21,8 @@ class Pin: NSManagedObject,MKAnnotation {
     
     var isFetchingImages:Bool = false
     
+    //cache to store prefetched photos
+    //The cache will be populated on add or update of the pin
     var prefetchedPhotos:[[String: AnyObject]]!
     
     //coordinate field implemented to support drag & drop

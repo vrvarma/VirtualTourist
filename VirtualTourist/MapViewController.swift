@@ -90,36 +90,6 @@ class MapViewController: UIViewController, MKMapViewDelegate,NSFetchedResultsCon
         }
     }
     
-    func addLocation(location: CLLocation) {
-        let geoCoder: CLGeocoder = CLGeocoder()
-        geoCoder.reverseGeocodeLocation(location, completionHandler: { (placemarks, error) -> Void in
-            if let error = error {
-                dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                    VTClient.alertDialog(self, errorTitle: "Error getting locations", action: "Ok",errorMsg: "\(error.localizedDescription)")
-                })
-            } else if placemarks!.count > 0 {
-                
-                let placemark = placemarks!.first as CLPlacemark?
-                let mkPlacemark = MKPlacemark(placemark: placemark!)
-                
-                //print(mkPlacemark)
-                
-                let title = mkPlacemark.description ?? "Untitled location"
-                let subtitle = mkPlacemark.administrativeArea ?? ""
-                
-                let pin = Pin(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, title: title, subtitle: subtitle, context: self.sharedContext)
-                pin.title = title
-                CoreDataStackManager.sharedInstance().saveContext()
-                self.prefetchFlickrImages(pin)
-                
-            } else{
-                dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                    VTClient.alertDialog(self, errorTitle: "Info",action: "Ok", errorMsg:"No locations found." )
-                })
-            }
-        })
-    }
-    
     //UIMapView Delegate Methods
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
         
@@ -130,26 +100,23 @@ class MapViewController: UIViewController, MKMapViewDelegate,NSFetchedResultsCon
         if pinView == nil {
             
             pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
-            pinView!.canShowCallout = true
+            //pinView!.canShowCallout = true
             pinView!.pinTintColor = UIColor.redColor()
             pinView!.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure)
             //pinView!.image = UIImage(named: "pin")
             pinView!.draggable = true
             pinView!.selected = true
             pinView!.dragState = .Starting
-            //pinView!.setDragState (.Starting,animated: true)
-            
         }
         else {
             
             pinView!.annotation = annotation
             pinView!.selected = true
             pinView!.dragState = .Starting
-            //pinView!.setDragState (.Starting,animated: true)
         }
         return pinView
     }
-    
+    //this delegate method will be invoked when the pin is selected.
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
         
         
@@ -189,6 +156,7 @@ class MapViewController: UIViewController, MKMapViewDelegate,NSFetchedResultsCon
         
     }
     
+    //This delegate method will be invoked when the pin is dragged and dropped
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, didChangeDragState newState: MKAnnotationViewDragState, fromOldState oldState: MKAnnotationViewDragState) {
         
         switch (newState) {
@@ -205,6 +173,7 @@ class MapViewController: UIViewController, MKMapViewDelegate,NSFetchedResultsCon
         default: break
         }
     }
+    
     //this delegate method will be called when the region changes
     //will persist the region in NS
     func mapView(mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
@@ -265,7 +234,41 @@ class MapViewController: UIViewController, MKMapViewDelegate,NSFetchedResultsCon
     var sharedContext: NSManagedObjectContext {
         return CoreDataStackManager.sharedInstance().managedObjectContext!
     }
-    //UpdateLocationInfo
+    
+    //Tapping and holding the map drops a new pin
+    //Helper method to place the pin in the mapView
+    func addLocation(location: CLLocation) {
+        let geoCoder: CLGeocoder = CLGeocoder()
+        geoCoder.reverseGeocodeLocation(location, completionHandler: { (placemarks, error) -> Void in
+            if let error = error {
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    VTClient.alertDialog(self, errorTitle: "Error getting locations", action: "Ok",errorMsg: "\(error.localizedDescription)")
+                })
+            } else if placemarks!.count > 0 {
+                
+                let placemark = placemarks!.first as CLPlacemark?
+                let mkPlacemark = MKPlacemark(placemark: placemark!)
+                
+                //print(mkPlacemark)
+                
+                let title = mkPlacemark.description ?? "Untitled location"
+                let subtitle = mkPlacemark.administrativeArea ?? ""
+                
+                let pin = Pin(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, title: title, subtitle: subtitle, context: self.sharedContext)
+                pin.title = title
+                CoreDataStackManager.sharedInstance().saveContext()
+                self.prefetchFlickrImages(pin)
+                
+            } else{
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    VTClient.alertDialog(self, errorTitle: "Info",action: "Ok", errorMsg:"No locations found." )
+                })
+            }
+        })
+    }
+    
+    //On dragging and dropping the pin, this method will update the title, subtitle and
+    //Prefetches the images
     private func updateLocationInfo(pin:Pin){
         
         let geoCoder: CLGeocoder = CLGeocoder()
@@ -286,13 +289,10 @@ class MapViewController: UIViewController, MKMapViewDelegate,NSFetchedResultsCon
                 let title = mkPlacemark.description ?? "Untitled location"
                 let subtitle = mkPlacemark.administrativeArea ?? ""
                 
-                
-                    
-                    pin.coordinate = location.coordinate
-                    pin.title = title
-                    pin.subtitle = subtitle
-                    self.prefetchFlickrImages(pin)
-                
+                pin.coordinate = location.coordinate
+                pin.title = title
+                pin.subtitle = subtitle
+                self.prefetchFlickrImages(pin)
                 
             } else{
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -302,8 +302,8 @@ class MapViewController: UIViewController, MKMapViewDelegate,NSFetchedResultsCon
             }
         })
     }
-
-    //Reload annotations
+    
+    //Reload annotations and display
     func reloadAnnotationsToMapViewFromFetchedResults() {
         
         let annotations = mapView.annotations
