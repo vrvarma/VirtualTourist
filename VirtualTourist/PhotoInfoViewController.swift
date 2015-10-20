@@ -39,6 +39,7 @@ class PhotoInfoViewController:UIViewController, UITableViewDelegate, UITableView
     override func viewDidAppear(animated: Bool) {
         
         super.viewWillAppear(animated)
+        fetchFlickrPhotos()
         tableView.reloadData()
         
     }
