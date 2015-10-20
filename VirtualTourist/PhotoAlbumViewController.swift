@@ -25,7 +25,7 @@ class PhotoAlbumViewController: UIViewController,NSFetchedResultsControllerDeleg
     var updatedIndexPaths: [NSIndexPath]!
     
     override func viewDidLoad() {
-        
+        pin = VTClient.sharedInstance().pin
         do {
             try fetchedResultsController.performFetch()
         } catch {}
@@ -35,6 +35,7 @@ class PhotoAlbumViewController: UIViewController,NSFetchedResultsControllerDeleg
     override func viewDidAppear(animated: Bool) {
         
         addPin()
+        collectionView.hidden = true
         fetchFlickrPhotos()
         updateBottomButton()
         
@@ -178,13 +179,19 @@ class PhotoAlbumViewController: UIViewController,NSFetchedResultsControllerDeleg
             if(photoList.isEmpty){
                 
                 self.enableDisableComponents(true)
-            }else{for photoObj in photoList{
-                
-                let photo = Photo(dictionary: photoObj, context: self.sharedContext)
-                photo.pin = self.pin
-                
-                }
-                CoreDataStackManager.sharedInstance().saveContext()
+            }else{
+                self.sharedContext.performBlockAndWait(
+                    {
+                        for photoObj in photoList{
+                            
+                            let photo = Photo(dictionary: photoObj, context: self.sharedContext)
+                            photo.pin = self.pin
+                            
+                        }
+                        CoreDataStackManager.sharedInstance().saveContext()
+                    }
+                )
+                            
                 self.enableDisableComponents(false)
             }
         }
@@ -203,7 +210,7 @@ class PhotoAlbumViewController: UIViewController,NSFetchedResultsControllerDeleg
         
         
     }
-
+    
     //Update the bottom button's title based on whether an image is selected.
     func updateBottomButton() {
         
@@ -242,7 +249,9 @@ class PhotoAlbumViewController: UIViewController,NSFetchedResultsControllerDeleg
                 }
                 if let data = imageData {
                     
-                    photo.posterImage = UIImage(data: data)
+                    self.sharedContext.performBlockAndWait({
+                        photo.posterImage = UIImage(data: data)
+                    })
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
                         
                         cell.imageView.image = photo.posterImage

@@ -105,11 +105,12 @@ class MapViewController: UIViewController, MKMapViewDelegate,NSFetchedResultsCon
             pinView!.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure)
             //pinView!.image = UIImage(named: "pin")
             pinView!.draggable = true
+            pinView!.animatesDrop = true
             pinView!.selected = true
             pinView!.dragState = .Starting
         }
         else {
-            
+            pinView!.animatesDrop = false
             pinView!.annotation = annotation
             pinView!.selected = true
             pinView!.dragState = .Starting
@@ -133,6 +134,7 @@ class MapViewController: UIViewController, MKMapViewDelegate,NSFetchedResultsCon
                 if pin.longitude == longitude && pin.latitude == latitude {
                     
                     sharedContext.deleteObject(pin)
+                    VTClient.sharedInstance().pin = nil
                     CoreDataStackManager.sharedInstance().saveContext()
                 }
             }
@@ -143,18 +145,29 @@ class MapViewController: UIViewController, MKMapViewDelegate,NSFetchedResultsCon
                 
                 let pin = annotation as! Pin
                 if !pin.isFetchingImages{
-                    let controller =
-                    self.storyboard!.instantiateViewControllerWithIdentifier("PhotoAlbumViewController")
-                        as! PhotoAlbumViewController
                     
-                    // Similar to the method above
-                    controller.pin = pin
-                    self.navigationController!.pushViewController(controller, animated: true)
+                    self.performSegueWithIdentifier("showPhotos", sender: pin)
+VTClient.sharedInstance().pin = pin
                 }
             }
         }
         
     }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        
+        // Get AlbumViewController and pass the selected location
+        if let identifier = segue.identifier {
+            
+            if identifier == "showPhotos" {
+                
+                segue.destinationViewController as! UITabBarController
+            }
+            
+        }
+        
+    }
+
     
     //This delegate method will be invoked when the pin is dragged and dropped
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, didChangeDragState newState: MKAnnotationViewDragState, fromOldState oldState: MKAnnotationViewDragState) {
@@ -253,11 +266,15 @@ class MapViewController: UIViewController, MKMapViewDelegate,NSFetchedResultsCon
                 
                 let title = mkPlacemark.description ?? "Untitled location"
                 let subtitle = mkPlacemark.administrativeArea ?? ""
-                
-                let pin = Pin(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, title: title, subtitle: subtitle, context: self.sharedContext)
-                pin.title = title
-                CoreDataStackManager.sharedInstance().saveContext()
-                self.prefetchFlickrImages(pin)
+                self.sharedContext.performBlockAndWait(
+                    {
+                        
+                        let pin = Pin(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, title: title, subtitle: subtitle, context: self.sharedContext)
+                        pin.title = title
+                        self.prefetchFlickrImages(pin)
+                        CoreDataStackManager.sharedInstance().saveContext()
+                    }
+                )
                 
             } else{
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in

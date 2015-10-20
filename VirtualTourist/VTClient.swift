@@ -22,6 +22,8 @@ class VTClient {
     
     var session: NSURLSession
     
+    var pin:Pin!
+    
     init() {
         session = NSURLSession.sharedSession()
     }

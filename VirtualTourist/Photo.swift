@@ -20,6 +20,7 @@ class Photo:NSManagedObject {
     @NSManaged var title: String?
     @NSManaged var imagePath: String?
     @NSManaged var pin: Pin?
+    @NSManaged var info: PictureInfo?
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -32,6 +33,9 @@ class Photo:NSManagedObject {
         
         self.imagePath = dictionary[Keys.Url] as? String
         self.title = dictionary[Keys.Title] as? String
+        
+        self.info = PictureInfo(dictionary: dictionary, context: context)
+        self.info?.photo = self
     }
     
     //this method is invoked by CoreData api when the object is deleted
